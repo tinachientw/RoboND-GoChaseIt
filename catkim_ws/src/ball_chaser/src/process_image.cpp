@@ -29,40 +29,36 @@ void process_image_callback(const sensor_msgs::Image img)
     int white_pixel = 255;
     float lin_x = 0.0;
     float ang_z = 0.0;
-    float offset_accumulated = 0;
-    int count_total = 0;
+    float ball_position_sum = 0.0;
+    int ball_pixel = 0;
 
     // TODO: Loop through each pixel in the image and check if there's a bright white one
     // Then, identify if this pixel falls in the left, mid, or right side of the image
     // Depending on the white ball position, call the drive_bot function and pass velocities to it
     // Request a stop when there's no white ball seen by the camera
     
-
+    //go through the pixel of img to identify ball pixel and position
     for (int i = 0; i < img.height ; i++) {
-        for (int j = 0; j < img.step; j++) {
-            if (img.data[i * img.step + j] == white_pixel) {
-                offset_accumulated += j - img.step / 2.0;
-                count_total++;
+        for (int j = 0; j < img.step; j+=3) {
+            if (img.data[i * img.step + j] == white_pixel   && //R 
+		img.data[i * img.step + j+1] == white_pixel && //G
+                img.data[i * img.step + j+2] == white_pixel) { //B 
+		ball_position_sum += j;
+                ball_pixel++;
             }
         }
     }
 
-    // Base on the result, determine the action
     // If there is no pixel or it's too close to the ball, then tell the car to stop
-    if (count_total == 0 || 
-        count_total > 0.1 * (img.height * img.step) ) {
+    if (ball_pixel == 0 || 
+        ball_pixel > 0.15 * (img.height * img.step) ) {
         lin_x = 0.0;
         ang_z = 0.0;
 
     }
     else {
         lin_x = 0.1;
-        // z = 0.5 * (step / 2.0 - idx_center_ball);
-
-        // Calculate the average offset (from -step/2.0 to +step/2.0)
-        // Normalize the average offset (from -1.0 to 1.0)
-        // Multiply with magic number -4.0 to turn
-        ang_z = -4.0 * offset_accumulated / count_total / (img.step /2.0);
+        ang_z = -0.5 * (ball_position_sum/ball_pixel - img.step/2.0) / (img.step/2.0) ;
     }
 
     // Send request to service
