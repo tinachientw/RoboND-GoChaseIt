@@ -29,7 +29,11 @@ In this project, I create two ROS packages inside my `catkin_ws/src`: the `drive
    In this case, the robot will drive towards the ball, turning left of right based on the position of the ball in the image.When the robot is close enough to the ball, it will stop approaching.
 
   <p align="center">
-    <img src="doc/chase_ball.gif">
+    <img src="doc/too_close.gif">
+  </p>
+
+  <p align="center">
+    <img src="doc/ball_disappear.gif">
   </p>
 
 ## Instructions
